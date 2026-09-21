@@ -1,0 +1,40 @@
+{
+  "preset": "wide",
+  "opacity": 1,
+  "alwaysOnTop": "floating",
+  "pos": null,
+  "mask": "code",
+  "lockMask": false,
+  "maskFollowsFile": true,
+  "project": "inkstack",
+  "branch": "main",
+  "hideOnBlur": true,
+  "hideOnLeave": 400,
+  "onLeave": "mask",
+  "peekOnHover": true,
+  "peekMs": 5000,
+  "screenGuard": true,
+  "muteOnHide": true,
+  "dimLive": 0.15,
+  "siteId": "douyin",
+  "openTabs": [
+    "douyin",
+    "bilibili",
+    "huya"
+  ],
+  "autoFit": true,
+  "volume": 70,
+  "rate": 1,
+  "clean": true,
+  "doubleClickPin": true,
+  "custom": [],
+  "freeSize": null,
+  "perSite": {},
+  "seenSite": {
+    "douyin": 1
+  },
+  "showRealNames": true,
+  "hideCursor": true,
+  "firstRun": false,
+  "cfgV": 4
+}

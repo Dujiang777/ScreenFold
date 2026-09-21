@@ -1,0 +1,1055 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   屏风 ScreenFold — 外壳皮肤
+   一套自研的「深靛蓝 + 琥珀」主题。目标是：从任何角度看过去，
+   这就是一个打开的编辑器面板，而不是一个视频窗口。
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg:        #12141c;
+  --panel:     #171a24;
+  --panel-2:   #1b1f2b;
+  --panel-3:   #20253200;
+  --edge:      #242a3a;
+  --edge-2:    #2e3548;
+  --fg:        #c8cede;
+  --fg-dim:    #7b849b;
+  --fg-faint:  #4d566b;
+  --accent:    #ffb454;
+  --accent-2:  #ffc98b;
+  --blue:      #8ab4ff;
+  --green:     #7fd4c1;
+  --red:       #f97583;
+  --purple:    #d98fbf;
+  --yellow:    #e5b567;
+
+  --ui-font: "Segoe UI", -apple-system, system-ui, "PingFang SC",
+             "Microsoft YaHei", sans-serif;
+  --mono: "Cascadia Mono", "JetBrains Mono", Consolas, "SF Mono",
+          ui-monospace, monospace;
+
+  --lh: 16px;
+  --fs: 11.5px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: var(--ui-font);
+  color: var(--fg);
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* ── 外壳 ─────────────────────────────────────────────────────────────────── */
+#shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border: 1px solid var(--edge-2);
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   标签栏  —— 中间空白处是窗口拖拽区
+   注意：#tabbar 本身不能是 drag，否则窗口最顶上那 6px 就没法用系统自带的
+   边缘缩放（WM_NCHITTEST 会被拖拽区吃掉）。所以只把 .tabs 标成 drag。
+   ══════════════════════════════════════════════════════════════════════════ */
+#tabbar {
+  height: 30px;
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  background: var(--panel);
+  border-bottom: 1px solid var(--edge);
+  -webkit-app-region: no-drag;
+  position: relative;
+}
+
+/* 左侧品牌块 —— 点开设置，伪装成「资源管理器」按钮 */
+.brand {
+  flex: none;
+  width: 28px;
+  display: grid;
+  place-items: center;
+  -webkit-app-region: no-drag;
+  cursor: pointer;
+  color: var(--fg-dim);
+  border-right: 1px solid var(--edge);
+  transition: color .12s, background .12s;
+}
+.brand:hover { color: var(--accent); background: var(--panel-2); }
+.brand svg { width: 13px; height: 13px; display: block; }
+
+/* 标签容器（空白处可以拖着窗口走） */
+.tabs {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-app-region: drag;
+}
+
+.tab {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 7px 0 9px;
+  max-width: 152px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--fg-faint);
+  background: var(--panel);
+  border-right: 1px solid var(--edge);
+  -webkit-app-region: no-drag;
+  cursor: pointer;
+  position: relative;
+  transition: color .12s, background .12s;
+}
+.tab:hover { background: var(--panel-2); color: var(--fg-dim); }
+.tab .dot {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .55;
+}
+.tab .fname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: -.1px;
+}
+.tab .x {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  line-height: 1;
+  color: transparent;
+  transition: color .12s, background .12s;
+}
+.tab:hover .x { color: var(--fg-faint); }
+.tab .x:hover { background: var(--edge-2); color: var(--fg); }
+
+/* 激活态：顶部亮条 + 底色抬高 */
+.tab.active {
+  background: var(--bg);
+  color: var(--fg);
+}
+.tab.active::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1.5px;
+  background: var(--accent);
+  opacity: .85;
+}
+.tab.active .fname { color: var(--fg); }
+.tab.active .dot { opacity: .95; }
+
+/* 右侧动作区 */
+.tab-actions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  gap: 1px;
+  -webkit-app-region: no-drag;
+}
+.tbtn {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--fg-faint);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: color .12s, background .12s;
+}
+.tbtn:hover { color: var(--fg); background: var(--panel-2); }
+.tbtn svg { width: 11px; height: 11px; display: block; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   舞台 —— 行号槽 + 画布
+   ══════════════════════════════════════════════════════════════════════════ */
+#stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+#gutter {
+  flex: none;
+  /* 宽度由面具根据行数写进 --gw（三位数行号和两位数行号不该一样宽）。
+     .collapsed 用 width:0 覆盖，所以这里不能用内联 style 直接改 width。 */
+  width: var(--gw, 38px);
+  overflow: hidden;
+  background: var(--bg);
+  padding-top: 4px;
+  transition: width .16s cubic-bezier(.4, 0, .2, 1), opacity .16s;
+  opacity: 1;
+}
+#gutter.collapsed { width: 0; opacity: 0; }
+
+#gutter .gl {
+  display: block;
+  height: var(--lh);
+  line-height: var(--lh);
+  padding-right: 7px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--fg-faint);
+  opacity: .75;
+}
+#gutter .gl.d-add { color: #4f7d55; }
+#gutter .gl.d-del { color: #7d4f56; }
+#gutter .gl.d-meta,
+#gutter .gl.d-hunk { color: var(--fg-faint); opacity: .5; }
+
+#canvas {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+/* 切换必须是瞬时的 —— 不留过渡，避免「正在淡出」被看到 */
+.layer.off {
+  visibility: hidden;
+  opacity: 0;
+  transition: none;
+}
+
+/* ── 面具：代码 ──────────────────────────────────────────────────────────── */
+#maskBody {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 4px 0 10px;
+  font-family: var(--mono);
+  font-size: var(--fs);
+  line-height: var(--lh);
+  letter-spacing: -.05px;
+}
+#maskBody .cl,
+#maskBody .dl,
+#maskBody .ll {
+  height: var(--lh);
+  line-height: var(--lh);
+  padding: 0 8px 0 6px;
+  white-space: pre;
+  overflow: hidden;
+}
+#maskBody .dl.d-add { background: rgba(127, 212, 193, .07); }
+#maskBody .dl.d-del { background: rgba(249, 117, 131, .07); }
+#maskBody .dl.d-hunk { color: var(--fg-faint); }
+#maskBody .dl.d-meta { color: var(--fg-faint); opacity: .8; }
+#maskBody .cl.typing { background: rgba(255, 180, 84, .05); }
+
+/* 终端模式：日志换个味道 */
+#maskBody.is-term {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #9aa4bb;
+}
+#maskBody.is-term .ll { padding-left: 9px; }
+#maskBody.is-term .ll.ok   { color: var(--green); }
+#maskBody.is-term .ll.work { color: var(--blue); }
+#maskBody.is-term .ll.warn { color: var(--yellow); }
+#maskBody.is-term .ll.done { color: #8b94ab; }
+#maskBody.is-term .ll.fresh { animation: fadein .22s ease-out; }
+@keyframes fadein { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; } }
+
+/* 语法着色 */
+.t-kw { color: var(--purple); }
+.t-ty { color: var(--green); }
+.t-cl { color: var(--blue); }
+.t-fn { color: var(--accent-2); }
+.t-st { color: #9fd49b; }
+.t-nu { color: var(--yellow); }
+.t-cm { color: var(--fg-faint); font-style: italic; }
+.t-pr { color: #a9b2c7; }
+.t-tx { color: var(--fg); }
+/* JSX 里的原生标签名（div / input / span …）—— 和组件区分开 */
+.t-tg { color: #7ea6d8; }
+
+/* ── 面具：test（vitest）───────────────────────────────────────────────── */
+#maskBody.is-test .ll.run { color: #8ab4ff; }
+#maskBody.is-test .ll.sum {
+  color: var(--accent);
+  font-weight: 600;
+  border-top: 1px solid rgba(46, 53, 72, .7);
+  margin-top: 3px;
+  padding-top: 2px;
+}
+
+/* ── 面具：git（git log --graph）────────────────────────────────────────── */
+#maskBody.is-git { font-size: 11px; }
+#maskBody.is-git .g-line {
+  height: var(--lh);
+  line-height: var(--lh);
+  padding: 0 9px;
+  white-space: pre;
+  overflow: hidden;
+  color: #93a0b8;
+}
+#maskBody.is-git .g-commit { color: var(--fg); }
+#maskBody.is-git .g-merge { color: var(--fg-faint); }
+#maskBody.is-git .g-hash { color: var(--yellow); }
+#maskBody.is-git .g-kind { color: var(--purple); }
+#maskBody.is-git .g-ref { color: var(--green); }
+#maskBody.is-git .g-msg { color: #b9c2d6; }
+
+/* 光标 */
+.caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 12px;
+  vertical-align: -1.5px;
+  background: var(--accent);
+  margin: 0 .5px;
+  animation: blink 1.06s steps(1) infinite;
+}
+@keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+
+/* ── 画面层 ──────────────────────────────────────────────────────────────── */
+#liveLayer {
+  background: #0a0c11;
+  display: block;
+}
+
+/* 画面容器。居中用 JS 直接算 left/top（见 app.js 的 fitStage），
+   不依赖 transform —— 少一层可能的坑，尺寸也更好核对。
+   真正让画面「只画最上面一条」的坑在下面 #frame webview 那条规则里。 */
+#frame {
+  position: absolute;
+  overflow: hidden;
+  background: #0a0c11;
+}
+
+#frame webview {
+  /* ⚠️ 这里千万不能写 display:block。
+     <webview> 是个被替换元素，Chromium 给它的默认高度是 150px；
+     一旦 display 被改成 block，宽高就不再由我们的布局决定 ——
+     实测宽度还会跟着走，高度永远卡在 150，页面只画最上面那一条、
+     下面一大片黑。必须是 flex（Electron 自己的默认值）。 */
+  display: flex;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #0a0c11;
+}
+
+/* 压暗层：纯白页面（比如抖音登录页）在深色外壳里一眼就能认出来，
+   盖一层暗色之后从侧后方扫过去就不那么跳了。 */
+#dim {
+  position: absolute;
+  inset: 0;
+  background: #05070c;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  transition: opacity .18s linear;
+}
+
+/* 加载遮罩 —— 看起来像编辑器在编译，而不是白屏 */
+#liveBoot {
+  position: absolute;
+  inset: 0;
+  display: none;
+  place-items: center;
+  background: var(--bg);
+  z-index: 4;
+}
+#liveBoot.on { display: grid; }
+#liveBoot .boot {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--fg-dim);
+}
+#liveBoot .spin {
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid var(--edge-2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   操作条 —— 鼠标一进窗口就浮出来，上面全是看得懂的中文
+   存在的意义：所有功能都能「看见 → 点」，不需要背快捷键。
+   ══════════════════════════════════════════════════════════════════════════ */
+#dock {
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  transform: translate(-50%, 10px);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 4px;
+  border-radius: 7px;
+  background: rgba(18, 20, 28, .86);
+  border: 1px solid var(--edge-2);
+  backdrop-filter: blur(9px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s, transform .15s;
+  z-index: 6;
+  -webkit-app-region: no-drag;
+  max-width: calc(100% - 10px);
+}
+#dock.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+
+#dock .dk {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 21px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: var(--fg-dim);
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: var(--ui-font);
+  font-size: 10px;
+  white-space: nowrap;
+  transition: color .12s, background .12s;
+}
+#dock .dk:hover { color: var(--fg); background: var(--panel-2); }
+#dock .dk.on { color: var(--accent); }
+#dock .dk.ic { width: 23px; padding: 0; justify-content: center; }
+#dock .dk svg { width: 12px; height: 12px; display: block; flex: none; }
+#dock .dk-sep {
+  flex: none;
+  width: 1px;
+  height: 13px;
+  background: var(--edge-2);
+  margin: 0 2px;
+}
+
+/* 窗口窄 → 先砍文字，再砍次要按钮 */
+#shell.compact #dock .dk { padding: 0 5px; }
+#shell.compact #dock .dk-t { display: none; }
+#shell.compact #dock .dk-sep { display: none; }
+#shell.micro #dock .dk-sep,
+#shell.micro #dkPin,
+#shell.micro #dkMute,
+#shell.micro #dkClean { display: none; }
+
+/* 操作条按钮：hover 时轻微抬起，让「这儿能点」这件事更明显 */
+#dock .dk:hover { transform: translateY(-1px); }
+#dock .dk:active { transform: translateY(0); }
+#dock .dk.on { background: rgba(255, 180, 84, .12); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   菜单 —— 右键 / 操作条 / 状态栏共用
+   ══════════════════════════════════════════════════════════════════════════ */
+#ctxmenu {
+  position: absolute;
+  z-index: 26;
+  display: none;
+  min-width: 136px;
+  max-width: calc(100vw - 8px);
+  background: var(--panel-2);
+  border: 1px solid var(--edge-2);
+  border-radius: 6px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .58);
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+#ctxmenu.on { display: block; }
+
+#ctxmenu .cm-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--edge);
+  font-size: 9.5px;
+  color: var(--fg-faint);
+}
+#cmBack {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--fg-dim);
+  border-radius: 3px;
+  cursor: pointer;
+}
+#cmBack:hover { background: var(--edge); color: var(--fg); }
+#cmBack svg { width: 11px; height: 11px; display: block; }
+#cmTitle { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+#ctxmenu .cm-list {
+  padding: 3px;
+  max-height: calc(100vh - 46px);
+  overflow-y: auto;
+}
+
+.cm-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4.5px 7px;
+  border: 0;
+  background: transparent;
+  color: var(--fg-dim);
+  font-family: var(--ui-font);
+  font-size: 10.5px;
+  text-align: left;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color .1s, background .1s;
+}
+.cm-item:hover { background: var(--edge); color: var(--fg); }
+.cm-item.on .cm-lab { color: var(--fg); }
+.cm-item.danger:hover { color: var(--red); }
+.cm-lab { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-hint {
+  flex: none;
+  max-width: 118px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--fg-faint);
+}
+.cm-ck { flex: none; color: var(--accent); font-size: 10px; }
+.cm-caret {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-left: 4px solid var(--fg-faint);
+  border-top: 3.5px solid transparent;
+  border-bottom: 3.5px solid transparent;
+}
+.cm-sep { height: 1px; background: var(--edge); margin: 3px 4px; }
+.cm-hd {
+  padding: 6px 7px 2px;
+  font-size: 9px;
+  color: var(--fg-faint);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   状态栏
+   ══════════════════════════════════════════════════════════════════════════ */
+#statusbar {
+  height: 22px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 4px 0 7px;
+  background: var(--panel);
+  border-top: 1px solid var(--edge);
+  font-size: 10px;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+.sb-group { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.sb-item { display: flex; align-items: center; gap: 3.5px; overflow: hidden; }
+.sb-item svg { width: 10px; height: 10px; flex: none; opacity: .8; }
+.sb-item.dim { color: var(--fg-faint); }
+.sb-branch { max-width: 84px; overflow: hidden; text-overflow: ellipsis; }
+
+/* 状态栏里能点的项 —— 点开就是菜单。hover 给个底色，否则没人知道能点 */
+#statusbar .clk {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: inherit;
+  letter-spacing: inherit;
+  padding: 1px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color .12s, background .12s;
+}
+#statusbar .clk:hover { background: var(--panel-2); color: var(--fg); }
+#statusbar .clk:hover .caret-dn { border-top-color: var(--fg); }
+.caret-dn {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-top: 3px solid var(--fg-faint);
+  border-left: 2.5px solid transparent;
+  border-right: 2.5px solid transparent;
+  opacity: .85;
+}
+
+/* 构建指示点 —— 跑测试面具时会呼吸，平时是暗的。
+   静止的图标看着像截图，会动才像「正在工作」。 */
+.build-dot {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg-faint);
+  opacity: .45;
+  transition: background .2s, opacity .2s;
+}
+.build-dot.busy {
+  background: var(--green);
+  opacity: 1;
+  animation: breathe 1.4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: .28; }
+  50% { opacity: 1; }
+}
+
+/* 右下角那枚「眼睛」—— 点一下就是钉住 / 松开 */
+#eye {
+  border: 0;
+  background: transparent;
+  color: var(--fg-faint);
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: color .12s, background .12s;
+  -webkit-app-region: no-drag;
+}
+#eye:hover { color: var(--fg); background: var(--panel-2); }
+#eye.live { color: var(--accent); }
+#eye svg { width: 11px; height: 11px; display: block; flex: none; }
+#eye .eye-t { font-size: 9.5px; font-family: var(--ui-font); }
+
+/* 右下角的拖拽把手 —— 提示「这儿能拉大拉小」。
+   拖它是走系统原生的无边框窗口缩放，不需要我们写代码。 */
+#grip {
+  flex: none;
+  width: 11px;
+  height: 10px;
+  margin-left: 1px;
+  cursor: nwse-resize;
+  opacity: .5;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--fg-faint) 0 1.2px,
+    transparent 1.2px 4px
+  );
+  -webkit-app-region: no-drag;
+}
+#grip:hover { opacity: .9; }
+
+/* 小窗口时收起次要信息 */
+#shell.compact .sb-hide-sm { display: none; }
+#shell.compact #eye .eye-t { display: none; }
+#shell.micro #sbSize { display: none; }
+
+/* 画面露出 + 鼠标静止 → 连指针一起藏掉 */
+#shell.nocursor,
+#shell.nocursor * { cursor: none !important; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   浮层：快速打开（Ctrl+P 味儿）
+   ══════════════════════════════════════════════════════════════════════════ */
+#palette {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  background: rgba(10, 12, 17, .72);
+  backdrop-filter: blur(3px);
+}
+#palette.on { display: flex; }
+
+#palette .box {
+  margin: 26px 10px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--edge-2);
+  border-radius: 7px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 44px);
+}
+#palette .search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--edge);
+  background: var(--panel-2);
+}
+#palette .search svg { width: 11px; height: 11px; color: var(--fg-faint); flex: none; }
+#palette input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  outline: none;
+}
+#palette input::placeholder { color: var(--fg-faint); }
+
+#palette .list { overflow-y: auto; padding: 3px; }
+
+.pitem {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+.pitem:hover, .pitem.sel { background: var(--edge); color: var(--fg); }
+.pitem .pdot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+}
+.pitem .pname {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pitem .pmeta { font-size: 9.5px; color: var(--fg-faint); flex: none; }
+.pitem.sel .pmeta { color: var(--fg-dim); }
+.pitem.head {
+  pointer-events: none;
+  color: var(--fg-faint);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 7px 7px 3px;
+}
+.pitem.head:hover { background: transparent; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   设置面板
+   ══════════════════════════════════════════════════════════════════════════ */
+#settings {
+  position: absolute;
+  inset: 0;
+  z-index: 21;
+  display: none;
+  flex-direction: column;
+  background: var(--panel);
+}
+#settings.on { display: flex; }
+
+#settings .shead {
+  height: 28px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 9px;
+  border-bottom: 1px solid var(--edge);
+  background: var(--panel-2);
+  font-size: 10.5px;
+  color: var(--fg-dim);
+  -webkit-app-region: drag;
+}
+#settings .shead .stitle { font-family: var(--mono); color: var(--fg); }
+#settings .shead .sclose {
+  margin-left: auto;
+  -webkit-app-region: no-drag;
+}
+
+#settings .sbody { flex: 1; overflow-y: auto; padding: 9px 11px 14px; }
+
+.sgroup { margin-bottom: 13px; }
+.sgroup > h4 {
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--fg-faint);
+  margin-bottom: 6px;
+}
+
+.srow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 0;
+  font-size: 11px;
+  color: var(--fg-dim);
+  border-bottom: 1px solid rgba(36, 42, 58, .55);
+}
+.srow:last-child { border-bottom: 0; }
+.srow .slabel { flex: 1; min-width: 0; }
+.srow .slabel small {
+  display: block;
+  font-size: 9.5px;
+  color: var(--fg-faint);
+  margin-top: 1.5px;
+  line-height: 1.35;
+}
+.srow .sctl { flex: none; display: flex; align-items: center; gap: 6px; }
+
+.sw {
+  width: 30px;
+  height: 16px;
+  border-radius: 9px;
+  background: var(--edge-2);
+  position: relative;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  transition: background .16s;
+  flex: none;
+}
+.sw::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--fg-faint);
+  transition: transform .16s, background .16s;
+}
+.sw.on { background: rgba(255, 180, 84, .3); }
+.sw.on::after { transform: translateX(14px); background: var(--accent); }
+
+.sseg {
+  display: flex;
+  border: 1px solid var(--edge-2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.sseg button {
+  border: 0;
+  background: transparent;
+  color: var(--fg-faint);
+  font-size: 10px;
+  padding: 3.5px 7px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: color .12s, background .12s;
+}
+.sseg button:hover { color: var(--fg); }
+.sseg button.on { background: var(--edge); color: var(--accent); }
+
+.srange { width: 92px; }
+.srange input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--edge-2);
+  outline: none;
+}
+.srange input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.snum {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--fg-faint);
+  min-width: 30px;
+  text-align: right;
+}
+
+.sbtn {
+  border: 1px solid var(--edge-2);
+  background: transparent;
+  color: var(--fg-dim);
+  font-size: 10px;
+  padding: 3.5px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: color .12s, border-color .12s, background .12s;
+}
+.sbtn:hover { color: var(--fg); border-color: var(--fg-faint); background: var(--panel-2); }
+.sbtn.warn:hover { color: var(--red); border-color: rgba(249, 117, 131, .5); }
+
+.hk {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--fg-faint);
+  background: var(--panel-2);
+  border: 1px solid var(--edge);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 1.5px 5px;
+  white-space: nowrap;
+}
+.hk.pending { color: var(--accent); border-color: rgba(255, 180, 84, .45); }
+
+/* 站点小列表（在设置里改真实名字用的） */
+.sitelist { display: flex; flex-direction: column; gap: 1px; }
+.sitelist .si {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4.5px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  color: var(--fg-dim);
+  cursor: pointer;
+}
+.sitelist .si:hover { background: var(--panel-2); color: var(--fg); }
+.sitelist .si.on { background: var(--edge); color: var(--fg); }
+.sitelist .si .sn {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sitelist .si .sr { font-size: 9px; color: var(--fg-faint); flex: none; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   提示条
+   ══════════════════════════════════════════════════════════════════════════ */
+#toast {
+  position: absolute;
+  left: 50%;
+  top: 38px;
+  transform: translate(-50%, -6px);
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(27, 31, 43, .94);
+  border: 1px solid var(--edge-2);
+  font-size: 10.5px;
+  font-family: var(--mono);
+  color: var(--fg-dim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s, transform .18s;
+  z-index: 30;
+  white-space: nowrap;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* 极窄窗口下的压缩 */
+#shell.micro #gutter { width: 0; opacity: 0; }
+#shell.micro #statusbar { font-size: 9px; padding: 0 3px 0 5px; }
+#shell.micro .sb-group { gap: 4px; }
+
+/* ── 细条（≈150~230px 宽）─────────────────────────────────────────────────
+   窗口能拖到 150px 了，外壳得跟着让路。原则：宁可少显示字，
+   也不能把按钮挤出可视区 —— 「看得见、点得到」是底线。
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* 标签栏再挤一挤；关掉叉号，省下的宽度留给文件名 */
+#shell.micro .brand { width: 21px; }
+#shell.micro .brand svg { width: 11px; height: 11px; }
+#shell.micro .tab { padding: 0 4px 0 6px; gap: 3px; max-width: 108px; }
+#shell.micro .tab .x { display: none; }
+
+/* 操作条：窄到一行放不下就换行，绝不让右边的按钮被裁掉。
+   之前 flex:none + 不换行 → 超出部分直接被 #shell 的 overflow:hidden 切掉，
+   「设置」按钮在最窄的时候会彻底点不到。 */
+#shell.micro #dock {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: calc(100% - 8px);
+  row-gap: 2px;
+}
+#shell.micro #dock .dk { padding: 0 4px; }
+
+/* 设置面板：一行放不下「标签 + 控件」就上下排，别横向挤成一坨 */
+#shell.micro #settings .srow { flex-direction: column; align-items: flex-start; gap: 5px; }
+#shell.micro #settings .sctl { align-self: flex-end; }
+#shell.micro #settings .sbody { padding: 8px; }
+#shell.micro #settings .sseg button { padding: 0 6px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   进阶折叠区 —— 快捷键放在这里，明确告诉用户「不用记」
+   ══════════════════════════════════════════════════════════════════════════ */
+.sgroup.adv {
+  border-top: 1px solid var(--edge);
+  padding-top: 10px;
+}
+.sgroup.adv > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .05em;
+  color: var(--fg-faint);
+  transition: color .12s;
+}
+.sgroup.adv > summary::-webkit-details-marker { display: none; }
+.sgroup.adv > summary:hover { color: var(--fg-dim); }
+.sgroup.adv > summary::before { content: "\25b8  "; }
+.sgroup.adv[open] > summary::before { content: "\25be  "; }
+.sgroup.adv .adv-note {
+  font-size: 9.5px;
+  line-height: 1.45;
+  color: var(--fg-faint);
+  margin: 7px 0 2px;
+}
+
+/* 设置面板里的按钮型控件（选尺寸之类） */
+.srow .sbtn { white-space: nowrap; }

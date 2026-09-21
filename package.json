@@ -1,0 +1,16 @@
+{
+  "name": "screenfold",
+  "productName": "屏风",
+  "version": "1.0.0",
+  "description": "屏风 ScreenFold — 一块看起来不像视频的屏幕",
+  "main": "src/main/main.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}

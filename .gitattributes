@@ -1,0 +1,12 @@
+# 默认统一成 LF，避免跨平台换行符抖动
+* text=auto eol=lf
+
+# Windows 批处理必须是 CRLF，否则双击可能直接闪退
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# 二进制，别做任何换行转换
+*.png binary
+*.ico binary
+*.exe binary
+*.dll binary

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-src *; child-src *;">
+<title>route.ts — inkstack</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="shell">
+
+  <!-- ══ 标签栏（＝窗口标题栏，可拖拽；也是「谁在开着」的指示） ══ -->
+  <header id="tabbar">
+    <div class="brand" id="btnSettings" title="设置">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5.5 3.5 2 8l3.5 4.5M10.5 3.5 14 8l-3.5 4.5"/>
+      </svg>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="tab-actions">
+      <button class="tbtn" id="btnMask" title="换面具">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6l4 4 4-4"/>
+        </svg>
+      </button>
+      <button class="tbtn" id="btnAdd" title="更多来源">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round"><path d="M8 3.5v9M3.5 8h9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ 舞台 ══ -->
+  <main id="stage">
+    <div id="gutter"></div>
+    <div id="canvas">
+
+      <!-- 面具层：假代码 / 假 diff / 假日志 -->
+      <div class="layer" id="maskLayer">
+        <div id="maskBody"></div>
+      </div>
+
+      <!-- 画面层（压暗层放在里面，这样收起来时会一起消失，不会把面具也压暗） -->
+      <div class="layer off" id="liveLayer">
+        <div id="frame"></div>
+        <div id="dim"></div>
+      </div>
+
+      <!-- 加载时的假「编译中」遮罩 -->
+      <div id="liveBoot">
+        <div class="boot"><span class="spin"></span><span id="bootText">Compiling…</span></div>
+      </div>
+
+      <!-- ══ 操作条：鼠标一进窗口就浮出来，全是看得懂的字 ══ -->
+      <div id="dock">
+        <button class="dk" id="dkSource" title="看哪个">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1.8" y="3" width="12.4" height="10" rx="1.2"/>
+            <path d="M6.2 3v10"/></svg>
+          <span class="dk-t">来源</span>
+        </button>
+        <button class="dk" id="dkMask" title="藏起来时长什么样">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7.4 2.2 2 5.6v5.6l5.4 2.6 5.4-2.6V5.6z"/>
+            <path d="M7.4 8v5.4"/></svg>
+          <span class="dk-t">面具</span>
+        </button>
+        <button class="dk" id="dkSize" title="改大小（也可以直接拖窗口边缘）">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 2.6h8.4v8.4H2z"/><path d="M5.6 13.4h8.4V5"/></svg>
+          <span class="dk-t">尺寸</span>
+        </button>
+        <button class="dk" id="dkRate" title="播放速度">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 4.6 7.4 8 3 11.4z"/><path d="M8.4 4.6 12.8 8l-4.4 3.4z"/></svg>
+          <span class="dk-t">倍速</span>
+        </button>
+        <button class="dk" id="dkClean" title="净化页面：盖掉登录浮层、下载横幅、开屏广告">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.6 1.8 4.2 8.6h3.1l-.9 5.6 5.4-6.8H8.7z"/></svg>
+          <span class="dk-t">净化</span>
+        </button>
+        <i class="dk-sep"></i>
+        <button class="dk" id="dkPin" title="钉住 —— 不再自动收回">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2.5h4l-.6 3.6 2.1 2.2H4.5l2.1-2.2z"/>
+            <path d="M8 8.3V13.5"/></svg>
+          <span class="dk-t">钉住</span>
+        </button>
+        <button class="dk ic" id="dkMute" title="静音 / 取消静音">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 3 5 5.6H3v4.8h2L8 13z"/><path d="M10.5 6a2.8 2.8 0 0 1 0 4"/></svg>
+        </button>
+        <button class="dk ic" id="dkReload" title="重新加载">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round">
+            <path d="M13 8a5 5 0 1 1-1.6-3.7"/><path d="M13.2 2.6v3h-3"/></svg>
+        </button>
+        <button class="dk ic" id="dkSettings" title="设置">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+               stroke-linecap="round">
+            <circle cx="8" cy="8" r="2.1"/>
+            <path d="M8 1.9v1.7M8 12.4v1.7M14.1 8h-1.7M3.6 8H1.9M12.3 3.7l-1.2 1.2M4.9 11.1l-1.2 1.2M12.3 12.3l-1.2-1.2M4.9 4.9 3.7 3.7"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ══ 状态栏 —— 每一项都能点，点开就是菜单 ══ -->
+  <footer id="statusbar">
+    <div class="sb-group">
+      <button class="sb-item clk" id="sbSource" title="看哪个（点一下换来源）">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+             stroke-linecap="round">
+          <circle cx="4.5" cy="3.5" r="1.6"/><circle cx="4.5" cy="12.5" r="1.6"/>
+          <circle cx="11.5" cy="6" r="1.6"/><path d="M4.5 5.1v5.8M11.5 7.6c0 2.2-2 3.2-4 3.2"/></svg>
+        <span class="sb-branch" id="sbBranch">main</span>
+        <i class="caret-dn"></i>
+      </button>
+      <span class="sb-item sb-hide-sm"><span id="sbDirty">M 2</span></span>
+      <span class="sb-item sb-hide-sm dim">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round"><path d="M3 8.5l3.2 3.2L13 5"/></svg>
+        <span>0</span>
+      </span>
+      <button class="sb-item clk dim sb-hide-sm" id="sbBuild" title="构建：上次成功">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"
+             stroke-linejoin="round"><path d="M8 2.5 14 13H2z"/><path d="M8 6.5v3M8 11.2v.1"/></svg>
+        <span>0</span>
+        <i class="build-dot" id="sbBuildDot"></i>
+      </button>
+    </div>
+    <div class="sb-group">
+      <span class="sb-item dim sb-hide-sm" id="sbCursor">Ln 1, Col 1</span>
+      <button class="sb-item clk dim sb-hide-sm" id="sbSize" title="改窗口大小">—</button>
+      <button class="sb-item clk dim" id="sbMaskBtn" title="换面具">
+        <span id="sbLang">TypeScript</span>
+        <i class="caret-dn"></i>
+      </button>
+      <button id="eye" title="钉住 / 取消钉住画面">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M1.5 8S4 3.8 8 3.8 14.5 8 14.5 8 12 12.2 8 12.2 1.5 8 1.5 8z"/>
+          <circle cx="8" cy="8" r="1.9"/></svg>
+        <span class="eye-t">钉住</span>
+      </button>
+      <i id="grip" title="拖这里改大小"></i>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ══ 菜单（右键 / 点操作条 / 点状态栏 共用一套） ══ -->
+<div id="ctxmenu">
+  <div class="cm-head" id="cmHead" hidden>
+    <button id="cmBack" title="返回">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>
+    </button>
+    <span id="cmTitle"></span>
+  </div>
+  <div class="cm-list" id="cmList"></div>
+</div>
+
+<!-- ══ 快速打开（来源多的时候用，可以从「＋」进） ══ -->
+<div id="palette">
+  <div class="box">
+    <div class="search">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
+      <input id="palInput" type="text" placeholder="搜来源…（文件名或站点名都行）" spellcheck="false" autocomplete="off">
+    </div>
+    <div class="list" id="palList"></div>
+  </div>
+</div>
+
+<!-- ══ 设置 ══ -->
+<div id="settings">
+  <div class="shead">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+         stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px">
+      <path d="M5.5 3.5 2 8l3.5 4.5M10.5 3.5 14 8l-3.5 4.5"/>
+    </svg>
+    <span class="stitle">Preferences</span>
+    <button class="tbtn sclose" id="btnCloseSettings" title="关闭">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>
+    </button>
+  </div>
+  <div class="sbody">
+
+    <div class="sgroup">
+      <h4>平时怎么用</h4>
+      <div class="srow">
+        <div class="slabel">鼠标移进来就显示画面
+          <small>主路径。移出去就自动收回，全程不用按任何键</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swHover"></button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">离开多久收回
+          <small>鼠标离开窗口后多久回到面具。调小更安全</small>
+        </div>
+        <div class="sctl">
+          <span class="srange"><input type="range" id="rngLeave" min="0" max="5000" step="100" value="400"></span>
+          <span class="snum" id="numLeave">0.4s</span>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="slabel">移开后
+          <small>变代码 = 外壳留在原地；藏起来 = 连窗口一起消失，用托盘图标或 Alt+V 叫回来</small>
+        </div>
+        <div class="sctl"><div class="sseg" id="segOnLeave"></div></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">画面压暗
+          <small>纯白页面在深色外壳里很扎眼，压暗一点不突兀</small>
+        </div>
+        <div class="sctl">
+          <span class="srange"><input type="range" id="rngDim" min="0" max="50" value="15"></span>
+          <span class="snum" id="numDim">15%</span>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="slabel">画面露出时自动隐藏鼠标指针
+          <small>不动鼠标 2 秒后指针消失，动一下就回来</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swCursor"></button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">双击画面 = 钉住 / 松开
+          <small>比去找右下角那个按钮快。不需要的话可以关掉</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swDbl"></button></div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <h4>窗口</h4>
+      <div class="srow">
+        <div class="slabel">大小
+          <small>也可以直接用鼠标拖窗口的四条边 / 四个角</small>
+        </div>
+        <div class="sctl"><button class="sbtn" id="btnSizeMenu">选尺寸</button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">不透明度</div>
+        <div class="sctl">
+          <span class="srange"><input type="range" id="rngOpacity" min="15" max="100" value="100"></span>
+          <span class="snum" id="numOpacity">100%</span>
+        </div>
+      </div>
+      <div class="srow">
+        <div class="slabel">置顶层级</div>
+        <div class="sctl"><div class="sseg" id="segTop"></div></div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <h4>藏起来时长什么样</h4>
+      <div class="srow">
+        <div class="slabel">面具
+          <small>收回时显示的内容。点状态栏右下角的语言名也能换</small>
+        </div>
+        <div class="sctl"><div class="sseg" id="segMask"></div></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">源码跟着标签走
+          <small>开着时，切到哪个标签，面具里就是那个文件的源码 —— 名字和内容永远对得上</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swFollow"></button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">菜单里显示真实站点名
+          <small>开着好认（菜单里能看到「抖音」）；关掉就只有文件名，更隐蔽</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swReal"></button></div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <h4>防护</h4>
+      <div class="srow">
+        <div class="slabel">净化页面
+          <small>盖掉登录引导、下载 App 横幅、开屏广告，并把系统粗滚动条换成细的。每个来源各记各的</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swClean"></button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">录屏 / 共享屏幕时不可见
+          <small>会议共享、录屏、截图时这个窗口都不会出现在画面里</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swGuard"></button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">失焦立刻收回
+          <small>点到别的窗口时马上切回面具</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swBlur"></button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">藏起来时静音
+          <small>关闭后，画面收起了但声音继续（戴耳机时用）</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swMuteOnHide"></button></div>
+      </div>
+      <div class="srow">
+        <div class="slabel">锁死面具
+          <small>开这个之后，鼠标怎么移都不露画面，只显示假代码。旁边有人时用</small>
+        </div>
+        <div class="sctl"><button class="sw" id="swLock"></button></div>
+      </div>
+    </div>
+
+    <div class="sgroup">
+      <h4>看什么</h4>
+      <div class="sitelist" id="siteList"></div>
+    </div>
+
+    <details class="sgroup adv">
+      <summary>进阶：三个快捷键（不用记）</summary>
+      <p class="adv-note">
+        所有操作都能用鼠标在窗口里点完，下面这些只是「万一顺手」时用的。
+        占用冲突了也不影响使用。
+      </p>
+      <div id="hotkeyList"></div>
+    </details>
+
+    <div class="sgroup">
+      <h4>其它</h4>
+      <div class="srow">
+        <div class="slabel">配置文件<small id="cfgPath"></small></div>
+        <div class="sctl"><button class="sbtn warn" id="btnQuit">退出</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="../shared/sites.js"></script>
+<script src="masks.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
