@@ -87,23 +87,36 @@ disguise  privacy-screen  webview  windows  javascript  vscode
 
 ---
 
-## 5. 建仓 + 首次推送
+## 5. 仓库地址与推送
 
-`.gitignore` 已经写好（`node_modules/`、自检日志、临时 profile 都已排除）。
+**已上线（2026-09-21）**
+
+| 远端名 | 地址 |
+|---|---|
+| `github` | https://github.com/Dujiang777/ScreenFold |
+| `gitee` | https://gitee.com/du-jiangjiang/screenfold |
+
+> 注意 GitHub 那个仓库名是 **`ScreenFold`**（大驼峰），Gitee 的是小写 `screenfold`。
+> 两边大小写不一致，但都指向各自唯一的仓库。
+
+日常推送（两个远端一起推）：
 
 ```bash
 cd "C:/Users/AMBITIOUS_YUAN/WorkBuddy/2026-09-17-15-42-00/screenfold"
 
-git init -b main
 git add -A
-git commit -m "feat: 屏风 ScreenFold v3 —— 五套面具 / 内容自洽 / 零按键交互"
-
-git remote add origin https://github.com/<你的用户名>/screenfold.git
-git push -u origin main
+git commit -m "你的改动说明"
+git push github main && git push gitee main
 ```
 
-**License**：`package.json` 里已声明 MIT。如果决定公开，记得补一个 `LICENSE` 文件，
-不然 GitHub 侧边栏会显示「未声明许可证」。
+只想推一个：`git push github main` 或 `git push gitee main`。
+
+**凭据**：两个站点都已经通过 Git Credential Manager 存过登录态，
+推送时不会再弹窗要密码。
+
+**License**：MIT，仓库根已有 `LICENSE` 文件（Copyright (c) 2026 Dujiang777），
+`package.json` 里的 `author` / `repository` 也已填好。
+想换成真实姓名的话，改 `LICENSE` 第 3 行那一个词就行，然后推到两个远端。
 
 ---
 
