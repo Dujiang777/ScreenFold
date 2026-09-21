@@ -1,5 +1,7 @@
 # 屏风 · ScreenFold
 
+**简体中文** · [English](README.en.md)
+
 > 一块看起来不像视频的屏幕。
 
 一个常驻桌面的小面板。标题栏是 `feed.aggregator.ts`，状态栏写着 `main · M 2 · Ln 42, Col 8`，
