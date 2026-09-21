@@ -59,10 +59,22 @@ disguise  privacy-screen  webview  windows  javascript  vscode
 
 ## 4. README 开头（仓库首页正文）
 
+**仓库里有两份 README，顶部互相链接：**
+
+| 文件 | 语言 | 说明 |
+|---|---|---|
+| `README.md` | 简体中文 | GitHub / Gitee 首页默认渲染的就是这份 |
+| `README.en.md` | English | 与中文版**逐节对应**的完整翻译（11 个二级章节 / 8 个三级 / 65 行表格 / 9 个代码块完全一致），不是摘要 |
+
+两份的第一行都是语言切换链接，读者可以互相跳转。想让英文用户第一眼看到英文版的话，
+把两份的**文件名对调**即可（GitHub 只认 `README.md` 作默认渲染）。
+
 现有 `README.md` 的开头已经合用，直接沿用即可：
 
 ```markdown
 # 屏风 · ScreenFold
+
+**简体中文** · [English](README.en.md)
 
 > 一块看起来不像视频的屏幕。
 
